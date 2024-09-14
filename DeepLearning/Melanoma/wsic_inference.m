@@ -1,0 +1,180 @@
+%% Load WSIC data
+WSIC_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/WSIC_labels/';
+WSIC_gt = upper(filesindir(WSIC_dir, 'ISIC'));
+
+%% File paths to 2016, 2017 data
+train_2017_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2017/ISIC-2017_Training_Part1_GroundTruth/';
+val_2017_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2017/ISIC-2017_Validation_Part1_GroundTruth/';
+test_2017_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2017/ISIC-2017_Test_v2_Part1_GroundTruth/';
+
+idx_2017_train_gt = filesindir(train_2017_dir, 'ISIC');
+idx_2017_val_gt = filesindir(val_2017_dir, 'ISIC');
+idx_2017_test_gt = filesindir(test_2017_dir, 'ISIC');
+
+all_2017 = upper([idx_2017_train_gt, idx_2017_val_gt, idx_2017_test_gt]);
+
+train_2016_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2016/ISBI2016_ISIC_Part1_Training_GroundTruth/';
+test_2016_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2016/ISBI2016_ISIC_Part1_Test_GroundTruth/';
+
+idx_2016_train_gt = filesindir(train_2016_dir, 'ISIC');
+idx_2016_test_gt = filesindir(test_2016_dir, 'ISIC');
+
+all_2016 = upper([idx_2016_train_gt, idx_2016_test_gt]);
+
+%%
+all_proc = strrep(upper([all_2016, all_2017]), '_SEGMENTATION', '');
+cal_image_names_png = strrep(setdiff(all_proc, setdiff(all_proc, WSIC_gt)), 'PNG', 'png');
+cal_image_names_jpg = strrep(setdiff(all_proc, setdiff(all_proc, WSIC_gt)), 'PNG', 'jpg');
+
+paths2gt = {train_2017_dir, val_2017_dir, test_2017_dir, train_2016_dir, test_2016_dir};
+
+images = {};
+iter = 0;
+
+gt_masks = zeros(256,256,323);
+wsic_innermasks = zeros(256,256,323);
+wsic_outermasks = zeros(256,256,323);
+
+all_names = {};
+for I = 1:5
+    I
+    if I < 4
+        imsindir = strrep(filesindir(paths2gt{I}),'_segmentation', '');
+    else
+        imsindir = strrep(filesindir(paths2gt{I}),'_Segmentation', '');
+    end
+    cal_gt_indir = intersect(imsindir, cal_image_names_png);
+    all_names = [all_names, cal_gt_indir];
+    for J = 1:length(cal_gt_indir)
+        iter = iter + 1
+
+        % Save ground truth masks
+        if I < 4
+            mask_name = strrep(cal_gt_indir{J}, '.png', '_segmentation.png');
+        else
+            mask_name = strrep(cal_gt_indir{J}, '.png', '_Segmentation.png');
+        end
+        full_mask = imread([paths2gt{I}, mask_name]);
+        gt_masks(:,:,iter) = (imresize(full_mask, [256,256])/255) > 0.5;
+
+        % Save wsic masks
+        wsic_mask = imread([WSIC_dir, cal_gt_indir{J}]);
+
+        outer_mask = wsic_mask > 0.5;
+        inner_mask = (wsic_mask == 1) ;
+
+        wsic_outermasks(:,:,iter) = imresize(outer_mask, [256,256]) > 0.5;
+        wsic_innermasks(:,:,iter) = imresize(inner_mask, [256,256]) > 0.5;
+    end
+end
+
+%% Examine
+for I = 101:200
+subplot(1,2,1)
+imagesc(wsic_outermasks(:,:,I))
+axis off image 
+title('WSIC'); BigFont(25);
+subplot(1,2,2)
+imagesc(gt_masks(:,:,I))
+axis off image 
+title('Ground truth'); BigFont(25);
+fullscreen
+pause
+end
+
+%% Calculate dt scores
+dtscores = zeros([256,256,323]);
+for I = 1:323
+    I
+    dtscores(:,:,I) = dtmask( wsic_innermasks(:,:,I) > 0.5 )/sqrt(sumsum(wsic_innermasks(:,:,I)));
+end
+
+%%
+ones2eliminate = [33, 53, 59, 60, 61, 91, 304, 122, 136, 146, 158, 160, 161, 162, 163, 188, 189, 183, 194, 195, 287];
+onesleft = setdiff(1:323, ones2eliminate);
+
+%% CI on the dtscores
+% Generate inner sets
+threshold_inner_dt = CI_fwer(dtscores, gt_masks, 0.1)
+
+% Generate outer sets
+threshold_outer_dt = CI_fwer(-dtscores, 1-gt_masks, 0.1)
+
+%% CI on the dtscores
+% Generate inner sets
+threshold_inner_dt = CI_fwer(dtscores(:,:,onesleft), gt_masks(:,:,onesleft), 0.1)
+
+% Generate outer sets
+threshold_outer_dt = CI_fwer(-dtscores(:,:,onesleft), 1-gt_masks(:,:,onesleft), 0.1)
+
+%%
+for I = onesleft
+    % orig_im = images(:,:,:,id);
+    score_im = dtscores(:,:,I);
+    orig_mask = gt_masks(:,:,I)>0;
+
+    predicted_inner = score_im > threshold_inner_dt;
+    predicted_outer = 1 - (-score_im > threshold_outer_dt);
+
+    % subplot(1,2,1)
+    cr_plot(predicted_inner, predicted_outer, orig_mask)
+    % imagesc(score_im > 0.9)
+    axis off image
+    % subplot(1,2,2)
+    % imagesc(orig_im)
+    % axis off image
+    % fullscreen
+    pause
+end
+
+%%
+all_proc = strrep(upper(idx_2016_train_gt), '_SEGMENTATION', '');
+setdiff(all_proc, setdiff(all_proc, WSIC_gt))
+
+%%
+im = imread([WSIC_dir, WSIC_gt{1}]);
+
+train_2016_dir = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/2016/ISBI2016_ISIC_Part1_Training_Data/';
+
+orig_im = imread([train_2016_dir, 'ISIC_0000002.jpg']);
+
+%% Haussdorff distance calculation
+imhausdorff(gt_masks(:,:,I), wsic_innermasks(:,:,I))
+
+%% WSIC risk control
+alpha = 0.1;
+lamhat = fzero(@(x) lamhat_threshold(x, dtscores,gt_masks, alpha), [-10,10]);
+
+%%
+for I = 1:100
+    % orig_im = images(:,:,:,id);
+    score_im = dtscores(:,:,I);
+    orig_mask = gt_masks(:,:,I)>0;
+
+    outer_set = score_im > lamhat;
+
+    % subplot(1,2,1)
+    inner_mistake = orig_mask - outer_set > 0;
+    imagesc(zeros([size(orig_mask), 3]))
+    subplot(1,2,1)
+    imagesc(outer_set)
+    axis off image   % imagesc(score_im > 0.9)
+    subplot(1,2,2)
+    imagesc(orig_mask)
+    axis off image   % imagesc(score_im > 0.9)
+    % subplot(1,2,2)
+    % imagesc(orig_im)
+    % axis off image
+    % fullscreen
+    pause
+end
+
+%% 
+hdist = zeros(1, 323);
+for I = 1:323
+    hdist(I) = imhausdorff(gt_masks(:,:,I), wsic_innermasks(:,:,I))/sqrt(sumsum( wsic_innermasks(:,:,I)));
+end
+
+prctile(hdist,80)
+
+prctile(hdist(onesleft),80)

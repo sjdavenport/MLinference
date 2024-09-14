@@ -26,6 +26,9 @@ clear a;
 im = pad_im( orig_im, [25,25,25,0] );
 
 %%
+imagesc(orig_im(:,:,100,1))
+colormap('gray')
+%%
 global savescores
 savescores = 1;
 classNames = ["background","tumor"];
@@ -39,7 +42,7 @@ a = load('scores.mat');
 X = extractdata(a.X);
 slice = 50;
 surf(X(:,:,slice,2), 'EdgeAlpha',0.5)
-axis off
+axis off image
 fullscreen
 
 %% Shrink the output to the original input size
@@ -57,6 +60,8 @@ subplot(1,3,3)
 imagesc(X(:,:,slice,2));
 fullscreen
 
+%%
+surf(sco)
 
 %%
 surf(X(:,:,slice,2));

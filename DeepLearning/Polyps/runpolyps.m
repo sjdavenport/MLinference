@@ -1,5 +1,8 @@
+loadpolypsdata
+
 %%
-[threshold, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.05);
+[threshold, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.1);
+predicted_masks = val_scores > threshold;
 
 %%
 CI_error(threshold, val_scores, val_gt_masks)
@@ -36,3 +39,375 @@ xlabel('\alpha')
 ylabel('Error')
 
 %%
+predicted_sizes = zeros(1,size(cal_scores,3));
+for I = 1:size(cal_scores,3)
+    I
+    im = cal_scores(:,:,I);
+    predicted_sizes(I) = sum(im(:) > 0.9);
+end
+
+%%
+plot(predicted_sizes, max_vals, '*')
+
+%% Plot the tumors against the scores and the images
+ex = 1689;
+idx(ex)
+subplot(1,4,1)
+predicted_mask = scores(:,:,ex+1) > threshold;
+imagesc(predicted_mask)
+axis off image
+% title('Inner set')
+subplot(1,4,2)
+imagesc(gt_masks(:,:,ex+1))
+% title('Ground truth')
+axis off image
+subplot(1,4,3)
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+im = imread([path4ims, num2str(ex),'.jpg']);
+imagesc(true_mask)
+axis off image
+subplot(1,4,4)
+imagesc(im)
+axis off image
+
+
+%%
+ex = 1689;
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+im = imread([path4ims, num2str(ex),'.jpg']);
+im_size = size(im);
+im_size = im_size(1:2);
+
+idx(ex)
+subplot(1,4,1)
+predicted_mask = scores(:,:,ex+1) > threshold;
+imagesc(imresize(predicted_mask, im_size, 'nearest'));
+axis off image
+% title('Inner set')
+subplot(1,4,2)
+imagesc(imresize(gt_masks(:,:,ex+1), im_size, 'nearest'))
+% title('Ground truth')
+axis off image
+subplot(1,4,3)
+imagesc(true_mask)
+axis off image
+subplot(1,4,4)
+imagesc(im)
+axis off image
+
+%%
+a = filesindir('/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/', 'mask.jpg')
+
+%% Generate inner sets
+[threshold, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.2);
+predicted_masks = val_scores > threshold;
+
+%% Generate outer sets
+[threshold_outer, max_vals_outer] = CI_fwer(1-cal_scores, 1-cal_gt_masks, 0.2);
+
+%%
+ex = 298;
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+im = imread([path4ims, num2str(ex),'.jpg']);
+im_size = size(im);
+im_size = im_size(1:2);
+
+idx(ex)
+subplot(1,4,1)
+predicted_mask = scores(:,:,ex+1) > threshold;
+imagesc(imresize(predicted_mask, im_size, 'nearest'));
+axis off image
+subplot(1,4,2)
+predicted_outer = (1-scores(:,:,ex+1)) > threshold_outer;
+imagesc(imresize(1-predicted_outer, im_size, 'nearest'));
+axis off image
+% title('Inner set')
+subplot(1,4,3)
+imagesc(imresize(gt_masks(:,:,ex+1), im_size, 'nearest'))
+% title('Ground truth')
+axis off image
+axis off image
+subplot(1,4,4)
+imagesc(im)
+axis off image
+
+%%
+for I = 1:100
+    subplot(1,4,1)
+    predicted_mask = scores(:,:,I) > threshold;
+    imagesc(imresize(predicted_mask, im_size, 'nearest'));
+    axis off image
+    subplot(1,4,2)
+    predicted_outer = (1-scores(:,:,I)) > threshold_outer;
+    imagesc(imresize(1-predicted_outer, im_size, 'nearest'));
+    axis off image
+    % title('Inner set')
+    subplot(1,4,3)
+    imagesc(imresize(gt_masks(:,:,I), im_size, 'nearest'))
+    % title('Ground truth')
+    axis off image
+    subplot(1,4,4)
+    imagesc(imresize(scores(:,:,I), im_size, 'nearest'))
+    axis off image
+    fullscreen
+    pause
+end
+
+%%
+for I = 1:100
+    sc = 1-scores(:,:,I);
+    mask = gt_masks(:,:,I);
+    masked_scores = sc.*mask;
+    max(masked_scores(:))
+    subplot(1,2,1)
+    histogram(sc(:))
+    subplot(1,2,2)
+    histogram(masked_scores(masked_scores > 0))
+    pause
+end
+
+%% CR plots
+I = 1
+predicted_inner = scores(:,:,I) > threshold;
+% predicted_inner = imresize(predicted_inner, im_size, 'nearest');
+
+predicted_outer = 1 - ((1-scores(:,:,I)) > threshold_outer);
+% predicted_outer = imresize(1-predicted_outer, im_size, 'nearest');
+
+mask = gt_masks(:,:,I);
+% predicted_outer = imresize(1-predicted_outer, im_size, 'nearest');
+% [~, boundary_mask ] = mask_bndry( mask );
+
+cr_plot(predicted_inner, predicted_outer, mask)
+
+
+%%
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+
+for I = 1:length(val_ex_indices)
+    ex = val_ex_indices(I);
+    true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+    im = imread([path4ims, num2str(ex),'.jpg']);
+    im_size = size(im);
+    im_size = im_size(1:2);
+
+    % predicted_inner = scores(:,:,ex+1) > threshold;
+    predicted_inner = scores(:,:,ex+1) > threshold_joint;
+
+    predicted_inner = imresize(predicted_inner, im_size, 'nearest');
+    % predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_outer);
+    predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_joint);
+    predicted_outer = imresize(predicted_outer, im_size, 'nearest');
+
+    % imagesc(im); hold on
+
+    % viewdata(im2double(im), ones(im_size), {predicted_inner, predicted_outer, im2double(true_mask(:,:,1))}, {'red', 'blue', 'yellow'});
+
+    [~, ~, ~, components] = numOfConComps(predicted_outer, 0.5);
+    relevant_outer_set = zeros(im_size);
+    for I = 1:length(components)
+        component_mask = cluster_im( im_size, components(I), 1 );
+        if any(component_mask(:).*predicted_inner(:))
+            relevant_outer_set = relevant_outer_set + component_mask;
+        end
+    end
+
+    subplot(1,2,1)
+    % cr_plot(predicted_inner, predicted_outer, true_mask(:,:,1))
+    cr_plot(predicted_inner, relevant_outer_set, true_mask(:,:,1))
+    axis off image
+    subplot(1,2,2)
+    imagesc(im)
+    axis off image
+    fullscreen
+    pause
+end
+
+%%
+subplot(1,2,1)
+imagesc(predicted_outer)
+subplot(1,2,2)
+imagesc(true_mask(:,:,1))
+
+%% Generate inner sets
+[threshold, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.2);
+predicted_masks = val_scores > threshold;
+
+%% Generate outer sets
+[threshold_outer, max_vals_outer] = CI_fwer(1-cal_scores, 1-cal_gt_masks, 0.2);
+
+%% Joint inference
+joint_max_vals = max(max_vals,max_vals_outer);
+alpha = 0.1;
+threshold_joint = prctile(joint_max_vals, 100 * (1 - alpha))
+
+%%
+histogram(max_vals_outer - max_vals)
+
+%% Pivotal inference
+pivotal_inner = vec_ecdf(max_vals, max_vals_inner_anal);
+pivotal_outer = vec_ecdf(max_vals_outer, max_vals_outer_anal);
+joint_max_vals_pivotal = max(pivotal_inner,pivotal_outer);
+alpha = 0.1;
+threshold_joint_pivotal = prctile(joint_max_vals_pivotal, 100 * (1 - alpha))
+
+%%
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/val_crs_joint';
+savelocims = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/val_images/';
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+
+im_size = [530,600];
+
+for I = 1:length(val_ex_indices)
+    I
+    ex = val_ex_indices(I);
+    score_im = scores(:,:,ex+1);
+    % vec_scores = 
+
+    true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+    im = imread([path4ims, num2str(ex),'.jpg']);
+    im = imresize(im, im_size, 'nearest');
+    % im_size = size(im);
+    % im_size = im_size(1:2);
+
+    % predicted_inner = scores(:,:,ex+1) > threshold;
+    predicted_inner = scores(:,:,ex+1) > threshold_joint;
+
+    predicted_inner = imresize(predicted_inner, im_size, 'nearest');
+    % predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_outer);
+    predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_joint);
+    predicted_outer = imresize(predicted_outer, im_size, 'nearest');
+
+    % imagesc(im); hold on
+
+    % viewdata(im2double(im), ones(im_size), {predicted_inner, predicted_outer, im2double(true_mask(:,:,1))}, {'red', 'blue', 'yellow'});
+
+    [~, ~, ~, components] = numOfConComps(predicted_outer, 0.5);
+    relevant_outer_set = zeros(im_size);
+    for I = 1:length(components)
+        component_mask = cluster_im( im_size, components(I), 1 );
+        if any(component_mask(:).*predicted_inner(:))
+            relevant_outer_set = relevant_outer_set + component_mask;
+        end
+    end
+
+    % subplot(1,2,1)
+    % cr_plot(predicted_inner, predicted_outer, true_mask(:,:,1))
+    cr_plot(predicted_inner, relevant_outer_set, imresize(true_mask(:,:,1), im_size, 'nearest'));
+    axis off image
+    saveim([num2str(ex), '.png'], [saveloc,'_', num2str(100*(1-alpha)), '/'])
+    clf
+    % size(predicted_inner)
+    % subplot(1,2,2)
+    imagesc(im)
+    axis off image
+    saveim([num2str(ex), '.png'], savelocims)
+    % fullscreen
+    % pause
+    clf
+end
+
+%%
+subplot(1,2,1)
+histogram(max_vals)
+subplot(1,2,2)
+histogram(max_vals_outer)
+
+%%
+sum(max_vals > threshold_joint)
+sum(max_vals_outer > threshold_joint)
+
+%% Inner sets
+[threshold_inner, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.02);
+
+%% Generate outer sets
+[threshold_outer, max_vals_outer] = CI_fwer(1-cal_scores, 1-cal_gt_masks, 0.08);
+
+%% Joint inference
+joint_max_vals = max(max_vals,max_vals_outer);
+alpha = 0.1;
+threshold_joint = prctile(joint_max_vals, 100 * (1 - alpha))
+
+%% Inner inference
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/val_crs_joint';
+savelocims = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/val_images/';
+path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
+
+im_size = [530,600];
+
+for I = 41:80
+    I
+    ex = val_ex_indices(I);
+    score_im = scores(:,:,ex+1);
+    % vec_scores = 
+
+    true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);
+    im = imread([path4ims, num2str(ex),'.jpg']);
+    im = imresize(im, im_size, 'nearest');
+    % im_size = size(im);
+    % im_size = im_size(1:2);
+
+    % predicted_inner = scores(:,:,ex+1) > threshold;
+    predicted_inner = scores(:,:,ex+1) > threshold_inner;
+
+    predicted_inner = imresize(predicted_inner, im_size, 'nearest');
+    % predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_outer);
+    predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_outer);
+    predicted_outer = imresize(predicted_outer, im_size, 'nearest');
+
+    % imagesc(im); hold on
+
+    % viewdata(im2double(im), ones(im_size), {predicted_inner, predicted_outer, im2double(true_mask(:,:,1))}, {'red', 'blue', 'yellow'});
+
+    [~, ~, ~, components] = numOfConComps(predicted_outer, 0.5);
+    relevant_outer_set = zeros(im_size);
+    for I = 1:length(components)
+        component_mask = cluster_im( im_size, components(I), 1 );
+        if any(component_mask(:).*predicted_inner(:))
+            relevant_outer_set = relevant_outer_set + component_mask;
+        end
+    end
+
+    % Joint!
+    predicted_inner_joint = scores(:,:,ex+1) > threshold_joint;
+
+    predicted_inner_joint = imresize(predicted_inner_joint, im_size, 'nearest');
+    % predicted_outer = 1 - ((1-scores(:,:,ex+1)) > threshold_outer);
+    predicted_outer_joint = 1 - ((1-scores(:,:,ex+1)) > threshold_joint);
+    predicted_outer_joint = imresize(predicted_outer_joint, im_size, 'nearest');
+
+    % imagesc(im); hold on
+
+    % viewdata(im2double(im), ones(im_size), {predicted_inner, predicted_outer, im2double(true_mask(:,:,1))}, {'red', 'blue', 'yellow'});
+
+    [~, ~, ~, components] = numOfConComps(predicted_outer_joint, 0.5);
+    relevant_outer_set_joint = zeros(im_size);
+    for I = 1:length(components)
+        component_mask = cluster_im( im_size, components(I), 1 );
+        if any(component_mask(:).*predicted_inner_joint(:))
+            relevant_outer_set_joint = relevant_outer_set_joint + component_mask;
+        end
+    end
+
+    subplot(1,3,1)
+    % cr_plot(predicted_inner, predicted_outer, true_mask(:,:,1))
+    cr_plot(predicted_inner, relevant_outer_set, imresize(true_mask(:,:,1), im_size, 'nearest'));
+    axis off image
+    subplot(1,3,2)
+    % cr_plot(predicted_inner, predicted_outer, true_mask(:,:,1))
+    cr_plot(predicted_inner_joint, relevant_outer_set_joint, imresize(true_mask(:,:,1), im_size, 'nearest'));
+    axis off image
+    % saveim([num2str(ex), '.png'], [saveloc,'_', num2str(100*(1-alpha)), '/'])
+    % clf
+    % size(predicted_inner)
+    subplot(1,3,3)
+    imagesc(im)
+    axis off image
+    % saveim([num2str(ex), '.png'], savelocims)
+    fullscreen
+    pause
+    clf
+end

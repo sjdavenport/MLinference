@@ -25,7 +25,7 @@ function [threshold, max_vals] = CI_fwer(scores, masks, alpha)
     max_vals = zeros(1, nimages);
 
     for I = 1:nimages
-        masked_image = squeeze(scores(:, :,I)) .* (1 - squeeze(masks(:, :, I)));
+        masked_image = squeeze(scores(:, :,I)) .* double((1 - squeeze(masks(:, :, I))));
         max_vals(I) = max(masked_image(:));
     end
 

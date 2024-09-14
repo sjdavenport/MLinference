@@ -18,6 +18,11 @@ function contour_points = interp_bndry( xvals, muhat, thr )
 % xvals = {1:100, 1:50};
 % contour_points = interp_bndry( xvals, smooth_data, thresh );
 % plot(contour_points(:,1), contour_points(:,2), '*')
+%
+% % Actually there's an inbuilt matlab function which does this already in 2D: 
+% contour_points = contourc(xvals{2}, xvals{1}, smooth_data, [thresh, thresh])';
+% contour_points = contour_points(2:end,:);
+% plot(contour_points(:,1), contour_points(:,2), '*')
 %--------------------------------------------------------------------------
 % Copyright (C) - 2023 - Samuel Davenport
 %--------------------------------------------------------------------------

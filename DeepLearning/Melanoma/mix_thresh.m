@@ -1,0 +1,128 @@
+saveloc = '/Users/sdavenport/Documents/Data/SegmentationData/Melanoma/Scores/';
+ts = load([saveloc, 'train_scores.mat']);
+scores = permute(ts.all_scores, [2,3,1]);
+ms = load([saveloc, 'train_masks.mat']);
+masks = double(permute(ms.masks, [2,3,1]));
+is = load([saveloc, 'train_images.mat']);
+images = permute(is.images, [2,3,4,1]);
+
+%%
+max_score_vec = zeros(1, 2594);
+for I = 1:2594
+    score_im = scores(:,:,I);
+    max_score_vec(I) = max(score_im(:));
+end
+
+%%
+dtscores = zeros([128,128,2594]);
+thresh = 0.5;
+for I = 1:2594
+    I
+    score_im = scores(:,:,I);
+    if sum(score_im(:) > thresh) > 0
+        dtscores(:,:,I) = dtmask( scores(:,:,I) > thresh );
+    end
+end
+
+minusmean = mean(dtscores(dtscores < 0));
+for I = 1:2594
+    if sum(score_im(:) > thresh) == 0
+        dtscores(:,:,I) = minusmean*ones(128,128);
+    end
+end
+
+%% CI on the original scores
+scores2use = scores(:,:,1:2000);
+max_score_vec_rel = max_score_vec(1:2000);
+masks_rel = masks(:,:,1:2000);
+thresh = 0.99;
+goodones = find(max_score_vec_rel > thresh);
+badones = find(max_score_vec_rel <= thresh);
+
+% Generate inner sets
+threshold_inner_good = CI_fwer(scores2use(:,:,goodones), masks_rel(:,:,goodones), 0.1)
+% Generate outer sets
+threshold_outer_good = CI_fwer(1 - scores2use(:,:,goodones), 1-masks_rel(:,:,goodones), 0.1)
+
+% Generate inner sets
+threshold_inner_bad = CI_fwer(scores2use(:,:,badones), masks_rel(:,:,badones), 0.1)
+% Generate outer sets
+threshold_outer_bad = CI_fwer(1 - scores2use(:,:,badones), 1-masks_rel(:,:,badones), 0.1)
+
+%%
+for id = 1500:1600
+    orig_im = images(:,:,:,id);
+    score_im = scores(:,:,id);
+    orig_mask = masks(:,:,id)>0;
+
+    if max(score_im(:)) > thresh
+        predicted_inner = score_im > threshold_inner_good;
+        predicted_outer = 1 - ((1-score_im) > threshold_outer_good);
+        title2use = 'good';
+    else
+        predicted_inner = score_im > threshold_inner_bad;
+        predicted_outer = 1 - ((1-score_im) > threshold_outer_bad);
+        title2use = 'bad';
+    end
+
+    subplot(1,2,1)
+    cr_plot(predicted_inner, predicted_outer, orig_mask)
+    % imagesc(score_im > 0.9)
+    title(title2use)
+    BigFont(25)
+    axis off image
+    subplot(1,2,2)
+    imagesc(orig_im)
+    axis off image
+    fullscreen
+    pause
+end
+
+%%
+dtscores2use = dtscores(:,:,1:2000);
+max_score_vec_rel = max_score_vec(1:2000);
+masks_rel = masks(:,:,1:2000);
+thresh = 0.99;
+goodones = find(max_score_vec_rel > thresh);
+badones = find(max_score_vec_rel <= thresh);
+
+% Generate inner sets
+threshold_inner_good_dt = CI_fwer(dtscores2use(:,:,goodones), masks_rel(:,:,goodones), 0.1)
+% Generate outer sets
+threshold_outer_good_dt = CI_fwer(-dtscores2use(:,:,goodones), 1-masks_rel(:,:,goodones), 0.1)
+
+% Generate inner sets
+threshold_inner_bad_dt = CI_fwer(dtscores2use(:,:,badones), masks_rel(:,:,badones), 0.1)
+% Generate outer sets
+threshold_outer_bad_dt = CI_fwer(-dtscores2use(:,:,badones), 1-masks_rel(:,:,badones), 0.1)
+
+%%
+for id = 1:10
+    orig_im = images(:,:,:,id);
+    score_im_orig = scores(:,:,id);
+    score_im = dtscores(:,:,id);
+    orig_mask = masks(:,:,id)>0;
+
+    if max(score_im_orig(:)) > thresh
+        predicted_inner = score_im > threshold_inner_good_dt;
+        predicted_outer = 1 - (-score_im > threshold_outer_good_dt);
+        title2use = 'good';
+    else
+        predicted_inner = score_im > threshold_inner_bad_dt;
+        predicted_outer = 1 - (-score_im > threshold_outer_bad_dt);
+        title2use = 'bad';
+    end
+
+    subplot(1,2,1)
+    cr_plot(predicted_inner, predicted_outer, orig_mask)
+    % imagesc(score_im > 0.9)
+    title(title2use)
+    BigFont(25)
+    axis off image
+    subplot(1,2,2)
+    imagesc(orig_im)
+    axis off image
+    fullscreen
+    pause
+
+end

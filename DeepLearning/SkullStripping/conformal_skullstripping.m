@@ -1,0 +1,84 @@
+skulldir = '/Users/sdavenport/Documents/Data/SkullStripping/NFBS_Dataset/';
+skullnames = filesindir(skulldir);
+ncal = 75;
+pos_maxima = zeros(1, ncal);
+neg_maxima = zeros(1, ncal);
+
+FWHM = 20;
+smooth_ones = fast_conv(ones(size(orig_im)), FWHM, 3);
+
+for I = 1:ncal
+    I
+    % Load the image data and ground truth mask
+    orig_im = imgload([skulldir, skullnames{I},'/sub-', skullnames{I}, '_ses-NFB3_T1w.nii.gz']);
+    orig_mask = imgload([skulldir, skullnames{I},'/sub-', skullnames{I}, '_ses-NFB3_T1w_brainmask.nii.gz']);
+
+    % Load and process scores
+    a = load([skulldir, skullnames{I},'/post_seg.mat']);
+    old_shape = load([skulldir, skullnames{I},'/old_shape.mat']).old_shape
+    scores = squeeze(a.post_seg);
+    scores = squeeze(scores(2,:,:,:));
+    scores = scores(1:old_shape(2), 1:old_shape(3), 1:old_shape(4));
+    scores = permute(scores, [3,2,1]);
+    scores = imresize3(scores, size(orig_im), 'cubic');
+    
+    % predicted_mask = scores > 0;
+    % dilated_mask = dilate_mask(predicted_mask, -5);
+    % scores(predicted_mask - dilated_mask > 0.5) = 0;
+    scores = fast_conv(scores, FWHM, 3);
+    scores = scores./smooth_ones;
+
+    scoresoutsidemask = scores.*(1-orig_mask);
+    pos_maxima(I) = max(scoresoutsidemask(:));
+    negscoresinsidemask = (-scores).*orig_mask;
+    neg_maxima(I) = max(negscoresinsidemask(:));
+end
+
+alpha = 0.05;
+pos_thresh = prctile(pos_maxima, 100 * (1 - alpha))
+neg_thresh = prctile(neg_maxima, 100 * (1 - alpha))
+
+%%
+alpha = 0.1;
+pos_thresh = prctile(pos_maxima, 100 * (1 - alpha))
+neg_thresh = prctile(neg_maxima, 100 * (1 - alpha))
+
+%%
+id = 101;
+% Load the image data and ground truth mask
+orig_im = imgload([skulldir, skullnames{id},'/sub-', skullnames{id}, '_ses-NFB3_T1w.nii.gz']);
+orig_mask = imgload([skulldir, skullnames{id},'/sub-', skullnames{id}, '_ses-NFB3_T1w_brainmask.nii.gz']);
+
+% Load and process scores
+a = load([skulldir, skullnames{id},'/post_seg.mat']);
+old_shape = load([skulldir, skullnames{id},'/old_shape.mat']).old_shape
+scores = squeeze(a.post_seg);
+scores = squeeze(scores(2,:,:,:));
+scores = scores(1:old_shape(2), 1:old_shape(3), 1:old_shape(4));
+scores = permute(scores, [3,2,1]);
+scores = imresize3(scores, size(orig_im), 'cubic');
+% predicted_mask = scores > 0;
+% dilated_mask = dilate_mask(predicted_mask, -5);
+% scores(predicted_mask - dilated_mask > 0.5) = 0;
+
+scores = fast_conv(scores, FWHM, 3);
+scores = scores./smooth_ones;
+
+%%
+a = scores > pos_thresh;
+b = -scores > neg_thresh;
+sum(a(:))
+sum(b(:))
+imagesc(a(:,:,60))
+% imagesc(b(:,:,60))
+%%
+thresh = 9;
+imagesc(scores(:,:,60) > thresh)
+
+%%
+surf(scores(:,:,60))
+
+%%
+slice = 60;
+viewdata(orig_im(:,:,slice), ones(s_im(1:2)), {1 - (-scores(:,:,slice) > neg_thresh), orig_mask(:,:,slice), scores(:,:,slice) > pos_thresh}, {'blue', 'yellow', 'red'}, 2, [], 1);
+    
