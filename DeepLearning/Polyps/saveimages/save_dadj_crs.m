@@ -5,6 +5,13 @@ load('scores_dist.mat')
 [threshold, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.1);
 
 %%
+for I = 1:1798
+    score_im = scores(:,:,I);
+    dt_score_im = scores_dist(:,:,I)
+    dadj_scores(:,:,I) =
+
+end
+%%
 cal_scores_dist = scores_dist(:,:,idx(1:id2stop));
 anal_scores_dist = scores_dist(:,:,idx(id2stop:end));
 val_scores_dist = scores_dist(:,:,~idx);

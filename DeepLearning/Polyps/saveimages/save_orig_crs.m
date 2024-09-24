@@ -72,7 +72,7 @@ for I = 11:275
     % axis off image
     % axis off image
     % saveim([num2str(ex), '.png'], saveloc)
-    % pause
+    pause
     clf
     close all
 end

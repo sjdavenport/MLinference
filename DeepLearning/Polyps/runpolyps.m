@@ -108,6 +108,18 @@ predicted_masks = val_scores > threshold;
 [threshold_outer, max_vals_outer] = CI_fwer(1-cal_scores, 1-cal_gt_masks, 0.2);
 
 %%
+for I = 1:200
+    subplot(1,3,1)
+    imagesc(cal_scores(:,:,I))
+    subplot(1,3,2)
+    imagesc(cal_scores_dist(:,:,I))
+    subplot(1,3,3)
+    imagesc(cal_gt_masks(:,:,I))
+    fullscreen
+    pause
+end
+
+%%
 ex = 298;
 path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
 true_mask = imread([path4ims, num2str(ex),'_gt_mask.jpg']);

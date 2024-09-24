@@ -27,6 +27,12 @@ function [threshold, max_vals] = CI_fwer(scores, masks, alpha)
     for I = 1:nimages
         masked_image = squeeze(scores(:, :,I)) .* double((1 - squeeze(masks(:, :, I))));
         max_vals(I) = max(masked_image(:));
+        % disp(max_vals(I))
+        % subplot(1,2,1)
+        % imagesc(masked_image)
+        % subplot(1,2,2)
+        % imagesc(masks(:, :, I))
+        % pause
     end
 
     threshold = prctile(max_vals, 100 * (1 - alpha));

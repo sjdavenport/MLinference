@@ -1,8 +1,10 @@
-ty
+loadpolypsdata
 
 %%
 alpha = 0.05;
+tic
 lamhat = fzero(@(x) lamhat_threshold(x, cal_scores, cal_gt_masks, alpha), [0, 1]);
+toc
 
 %%
 predicted_masks = val_scores >= lamhat;

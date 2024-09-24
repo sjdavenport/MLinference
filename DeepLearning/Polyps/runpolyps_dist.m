@@ -1,16 +1,20 @@
 loadpolypsdata
 
 %% dist scores
-% scores_dist = zeros(size(scores));
+scores_dist = zeros(size(scores));
 
-for I = 1112:size(scores, 3)
+recordshows = [];
+for I = 1:size(scores, 3)
     I
     score_im = scores(:,:,I);
-    mask_im = score_im > 0.5;
-    if sum(mask_im(:)) > 0
-        scores_dist(:,:,I) = dist2maskbndry( mask_im );
+    maskim = score_im > 0.5;
+    if sum(maskim(:)) > 0
+        recordshows = [recordshows, I];
+        scores_dist(:,:,I) = dtmask( maskim );
+        % scores_dist(:,:,I) = dist2maskbndry( mask_im );
     end
 end
+recordnoshows = setdiff(1:1798, recordshows);
 
 %% Set the images where there was no tumor found to zero!
 for I = 1:1798

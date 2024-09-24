@@ -43,7 +43,7 @@ fullscreen
 dtscores = zeros([128,128,2594]);
 for I = 1:2594
     I
-    dtscores(:,:,I) = dtmask( scores(:,:,I) > 0.98 );
+    dtscores(:,:,I) = dtmask( scores(:,:,I) > 0.5 );
 end
 
 %%
@@ -117,13 +117,13 @@ fullscreen
 
 %% CI on the original scores
 % Generate inner sets
-threshold_inner = CI_fwer(scores(:,:,1:2000), masks(:,:,1:2000), 0.1)
+threshold_inner = CI_fwer(scores(:,:,1:2000), masks(:,:,1:2000), 0.25)
 
 % Generate outer sets
-threshold_outer = CI_fwer(1 - scores(:,:,1:2000), 1-masks(:,:,1:2000), 0.1)
+threshold_outer = CI_fwer(1 - scores(:,:,1:2000), 1-masks(:,:,1:2000), 0.25)
 
 %%
-for id = 1700
+for id = 2001:2100
     orig_im = images(:,:,:,id);
     score_im = scores(:,:,id);
     orig_mask = masks(:,:,id)>0;
@@ -154,10 +154,10 @@ end
 
 %% CI on the dtscores
 % Generate inner sets
-[threshold_inner_dt, max_vals_inner] = CI_fwer(dtscores(:,:,1:2000), masks(:,:,1:2000), 0.1);
+[threshold_inner_dt, max_vals_inner] = CI_fwer(dtscores(:,:,1:2000), masks(:,:,1:2000), 0.25);
 
 % Generate outer sets
-[threshold_outer_dt, max_vals_outer] = CI_fwer(-dtscores(:,:,1:2000), 1-masks(:,:,1:2000), 0.1);
+[threshold_outer_dt, max_vals_outer] = CI_fwer(-dtscores(:,:,1:2000), 1-masks(:,:,1:2000), 0.25);
 
 %%
 for id = 2000:2100
@@ -207,17 +207,17 @@ for id = 1700:1750
 end
 
 %% Smooth scores
-FWHM = 3;
+FWHM = 2;
 smooth_scores = fast_conv(scores - 0.5, FWHM, 2);
 smooth_ones = fast_conv(ones(128,128), FWHM);
 smooth_scores = smooth_scores./smooth_ones;
 
 %% CI on the smooth scores
 % Generate inner sets
-[threshold_inner_smooth, max_vals_inner] = CI_fwer(smooth_scores(:,:,1:1500), masks(:,:,1:1500), 0.1);
+[threshold_inner_smooth, max_vals_inner] = CI_fwer(smooth_scores(:,:,1:2000), masks(:,:,1:2000), 0.25);
 
 % Generate outer sets
-[threshold_outer_smooth, max_vals_outer] = CI_fwer(-smooth_scores(:,:,1:1500), 1-masks(:,:,1:1500), 0.1);
+[threshold_outer_smooth, max_vals_outer] = CI_fwer(-smooth_scores(:,:,1:2000), 1-masks(:,:,1:2000), 0.25);
 
 %%
 for id = 2001:2100
@@ -263,10 +263,10 @@ end
 
 %% CI on the dtscores
 % Generate inner sets
-[threshold_inner_dt, max_vals_inner] = CI_fwer(dtscores_smooth(:,:,1:2000), masks(:,:,1:2000), 0.1);
+[threshold_inner_dt_smooth, max_vals_inner] = CI_fwer(dtscores_smooth(:,:,1:2000), masks(:,:,1:2000), 0.25);
 
 % Generate outer sets
-[threshold_outer_dt, max_vals_outer] = CI_fwer(-dtscores_smooth(:,:,1:2000), 1-masks(:,:,1:2000), 0.1);
+[threshold_outer_dt_smooth, max_vals_outer] = CI_fwer(-dtscores_smooth(:,:,1:2000), 1-masks(:,:,1:2000), 0.25);
 
 %%
 for id = 2001:2100
@@ -274,8 +274,8 @@ for id = 2001:2100
     score_im = dtscores_smooth(:,:,id);
     orig_mask = masks(:,:,id)>0;
 
-    predicted_inner = score_im > threshold_inner_dt;
-    predicted_outer = 1 - (-score_im > threshold_outer_dt);
+    predicted_inner = score_im > threshold_inner_dt_smooth;
+    predicted_outer = 1 - (-score_im > threshold_outer_dt_smooth);
 
     subplot(1,2,1)
     cr_plot(predicted_inner, predicted_outer, orig_mask)

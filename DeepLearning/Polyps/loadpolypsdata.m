@@ -24,17 +24,18 @@ idx(1:ncal) = 1;
 idx = logical(idx(randperm(length(idx))));
 
 id2stop = max(find(cumsum(idx) == 500));
+anal_indices = 1:1798;
+anal_indices = anal_indices([zeros(1,id2stop-1) > 0, idx(id2stop:end)]);
+
 cal_scores = scores(:,:,idx(1:id2stop));
-anal_scores = scores(:,:,idx(id2stop:end));
+anal_scores = scores(:,:,[zeros(1,id2stop-1) > 0, idx(id2stop:end)]);
 val_scores = scores(:,:,~idx);
 
 anal_size = 298;
 
 cal_gt_masks = gt_masks(:,:,idx(1:id2stop));
-anal_gt_masks = gt_masks(:,:,idx(id2stop:end));
+anal_gt_masks = gt_masks(:,:,[zeros(1,id2stop-1) > 0,idx(id2stop:end)]);
 val_gt_masks = gt_masks(:,:,~idx);
-
-%%
 
 %%
 anal_max_dist = zeros(1, anal_size);
@@ -68,6 +69,18 @@ ex_indices = sort(ex_indices);
 
 %%
 val_indices = 1:1798;
-val_indices = val_indices(~idx) + 1;
+val_indices = val_indices(~idx) - 1;
 val_ex_indices = intersect(ex_indices, val_indices);
 
+
+% %%
+% for I = anal_indices
+%     subplot(1,3,1)
+%     imagesc(scores(:,:,I))
+%     subplot(1,3,2)
+%     imagesc(scores_dist(:,:,I))
+%     subplot(1,3,3)
+%     imagesc(gt_masks(:,:,I))
+%     fullscreen
+%     pause
+% end
