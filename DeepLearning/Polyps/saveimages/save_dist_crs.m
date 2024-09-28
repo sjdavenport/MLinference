@@ -94,7 +94,7 @@ im_size = [530,600];
 
 saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/learning/dist_crs_marginal90/';
 
-for I = 7
+for I = 1:59
     I
     ex = learn_ex_indices(I);
     score_im = scores_dist(:,:,ex+1);
@@ -132,10 +132,10 @@ view([-17,11])
 screenshape([1,1,600,500])
 
 % for I = 1:length(learn_ex_indices)
-for I = 7
+for I = 1:59
     I
     ex = learn_ex_indices(I);
-    score_im = scores_dist(:,:,ex+1);
+    score_im = fliplr(scores_dist(:,:,ex+1));
 
     surf(score_im, 'EdgeAlpha', 0.05)
     colormap(cmap)
@@ -143,7 +143,7 @@ for I = 7
     surf(ones(size(score_im))*threshold_inner_dt, 'FaceColor', [1,0.2,0.2], 'EdgeAlpha', 0.01)
     surf(ones(size(score_im))*(-threshold_outer), 'FaceColor', [0, 0.4470, 0.7410], 'EdgeAlpha', 0.01)
     % view([-17,11])
-    view([-104, 7])
+    view([-190, 7])
     xlim([1,352])
     ylim([1,352])
     % fullscreen
@@ -154,12 +154,12 @@ for I = 7
     ax.YColor = 'none'; % Turn off y-axis label\
     ax.LineWidth = 2; % Increase line width for better visibility
 
-    % saveim('testjpg')
+    % % saveim('testjpg')
     print([saveloc, num2str(ex), '.png'],'-dpng','-r0')
     % axis image
     % axis off image
     % saveim([num2str(ex), '.png'], saveloc)
     % pause
-    % clf[
-    % close all
+    clf
+    close all
 end

@@ -60,7 +60,7 @@ saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figu
 cmap = custom_colormap([0.8,0.4,0.8], [1,1,0]);
 
 % for I = 1:length(learn_ex_indices)
-for I = 7
+for I = 1:59
     I
     ex = learn_ex_indices(I);
     score_im = scores(:,:,ex+1);

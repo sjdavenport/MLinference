@@ -204,7 +204,7 @@ end
 plot(1-alpha_levels(1:31), average_bound_outer(1,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
 plot(1-alpha_levels(1:31), average_bound_outer(2,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:31), average_bound_outer(3,1:31)/123904/1000, 'LineWidth', 6, 'color', 'black')
+plot(1-alpha_levels_bt(1:31), average_bound_outer_bt(1,1:31)/123904, 'LineWidth', 6, 'color', 'black')
 % plot([0.1, 0.1], [0, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
@@ -214,14 +214,14 @@ ylabel('Proportion')
 title('Outer proportion')
 legend('Original scores', 'DT scores', 'Location', 'NW')
 screenshape([1,1,700,500])
-saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
-saveim('outer_proportion.pdf', saveloc)
+% saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
+% saveim('outer_proportion.pdf', saveloc)
 
 %% Inner
 plot(1-alpha_levels(1:31), average_bound_inner(1,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
 plot(1-alpha_levels(1:31), average_bound_inner(2,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:31), average_bound_inner(3,1:31)/123904/1000, 'LineWidth', 6, 'color', 'black')
+plot(1-alpha_levels_bt(1:31), average_bound_inner_bt(1,1:31)/123904, 'LineWidth', 6, 'color', 'black')
 % plot([getto, 1], [1, 1], '--'t , 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
@@ -247,6 +247,7 @@ startat = 100*getto+1;
 plot(1-alpha_levels(1:startat), sqrt(median_ratio_outer(1,1:startat)/1000), 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
 plot(1-alpha_levels(1:startat), sqrt(median_ratio_outer(2,1:startat)/1000), 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_outer_bt(1,1:startat)), 'LineWidth', 6, 'color', 'black')
 plot([1-getto, 1], [1, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
@@ -262,16 +263,17 @@ saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figu
 saveim('outer_ratio.pdf', saveloc)
 
 %% Inner median ratio sqrt
-getto = 0.7;
+getto = 0.3;
 startat = 100*getto+1;
 plot(1-alpha_levels(1:startat), sqrt(median_ratio_inner(1,1:startat)/1000), 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
 plot(1-alpha_levels(1:startat), sqrt(median_ratio_inner(2,1:startat)/1000), 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_inner_bt(1,1:startat)), 'LineWidth', 6, 'color', 'black')
 plot([getto, 1], [1, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
 ylim([0,4])
-xlim([getto,1])
+xlim([1-getto,1])
 xlabel('1 - \alpha_1')
 ylabel('Ratio')
 title('Inner Ratio')
@@ -287,7 +289,7 @@ plot([1-getto,1], [1-getto,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, '
 hold on
 plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(1,1:pointat)/1000, '-o', 'LineWidth', 5, 'color', [0.5, 0.5, 1])
 plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(2,1:pointat)/1000, '-', 'LineWidth', 5, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(3,1:pointat)/1000, 'LineWidth', 5, 'color', 'black')
+plot(1-alpha_levels_bt(1:pointat), 1-coverage_curves_outer_bt(1,1:pointat), 'LineWidth', 5, 'color', 'black')
 std_curves = 1 - bernstd( 0:0.001:getto, 1000, 0.95 );
 plot(1-(0:0.001:getto), std_curves(1,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
 plot(1-(0:0.001:getto), std_curves(2,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
@@ -303,8 +305,8 @@ title('Outer coverage')
 screenshape([1,1,500,500])
 legend('Original scores', 'DT scores', 'BB scores', 'Location', 'NW')
 axis square
-saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/validation/';
-saveim('outer_coverage.pdf', saveloc)
+% saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/validation/';
+% saveim('outer_coverage.pdf', saveloc)
 
 %% Plot inner coverage curves
 plot([0.8,1], [0.8,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, 'HandleVisibility', 'off')

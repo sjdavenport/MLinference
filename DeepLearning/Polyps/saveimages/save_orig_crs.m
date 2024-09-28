@@ -132,7 +132,7 @@ im_size = [530,600];
 
 saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/learning/score_crs_marginal90/';
 
-for I = 1:10
+for I = 1:length(learn_ex_indices)
     I
     ex = learn_ex_indices(I);
     score_im = scores(:,:,ex+1);
@@ -169,11 +169,11 @@ ylim([0,352])
 view([-17,11])
 screenshape([1,1,600,500])
 
-% for I = 1:length(learn_ex_indices)
-for I = 7
+for I = 1:59
+% for I = 7
     I
     ex = learn_ex_indices(I);
-    score_im = scores(:,:,ex+1);
+    score_im = fliplr(scores(:,:,ex+1));
 
     surf(score_im, 'EdgeAlpha', 0.05)
     colormap(cmap)
@@ -181,7 +181,9 @@ for I = 7
     surf(ones(size(score_im))*threshold_inner, 'FaceColor', [1,0.2,0.2], 'EdgeAlpha', 0.01)
     surf(ones(size(score_im))*(1-threshold_outer), 'FaceColor', [0, 0.4470, 0.7410], 'EdgeAlpha', 0.01)
     % view([-17,11])
-    view([-104, 7])
+    % view([-104, 7])
+    % view([-170, 7])
+    view([-190, 7])
 
     % fullscreen
     screenshape([1,1,799,705], 'white')
@@ -198,6 +200,6 @@ for I = 7
     % axis off image
     % saveim([num2str(ex), '.png'], saveloc)
     % pause
-    % clf[
-    % close all
+    clf
+    close all
 end
