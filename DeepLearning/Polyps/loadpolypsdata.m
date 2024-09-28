@@ -6,6 +6,7 @@ scores = permute(a.sgmd, [2,3,1]);
 
 b = load([datadir, 'gt_masks.mat' ] );
 gt_masks = permute(b.gt_masks, [2,3,1]);
+gt_masks(1,1,:) = 0;
 
 n_images = size(scores, 3);
 %%

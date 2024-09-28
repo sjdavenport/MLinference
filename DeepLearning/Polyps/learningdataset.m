@@ -16,6 +16,23 @@ for I = 1:size(scores, 3)
 end
 recordnoshows = setdiff(1:1798, recordshows);
 
+%% dist scores2
+scores_dist2 = zeros(size(scores));
+
+recordshows = [];
+for I = 1:size(scores, 3)
+    I
+    score_im = scores(:,:,I);
+    maskim = score_im > 0.7;
+    if sum(maskim(:)) > 0
+        recordshows = [recordshows, I];
+        scores_dist2(:,:,I) = dtmask( maskim );
+        % scores_dist(:,:,I) = dist2maskbndry( mask_im );
+    end
+end
+recordnoshows = setdiff(1:1798, recordshows);
+
+
 %%
 rng(2, 'twister')
 learning_idx = randsample(1798, 298);
@@ -27,7 +44,15 @@ learning_masks = gt_masks(:,:,learning_idx);
 [threshold_outer, max_vals_outer] = CI_fwer(1-learning_scores, 1-learning_masks, 0.1);
 
 %%
+ncc_pred_learn = zeros(1, 298);
+
+for I = 1:298
+    ncc_pred_learn(I) = numOfConComps(learning_masks(:,:,I), 0.5);
+end
+
+%%
 learning_scores_dist = scores_dist(:,:,learning_idx);
+learning_scores_dist2 = scores_dist2(:,:,learning_idx);
 
 [threshold_inner_dt, max_vals_inner] = CI_fwer(learning_scores_dist, learning_masks, 0.1);
 [threshold_outer_dt, max_vals_outer] = CI_fwer(-learning_scores_dist, 1-learning_masks, 0.1);
@@ -120,3 +145,37 @@ surf(adj_score_im)
 
 %%
 surf(score_im./(dt_score_im +1))
+
+%% Learn 2D 
+subplot(1,2,1)
+histogram(ncc(learning_idx))
+subplot(1,2,2)
+histogram(ncc_pred(learning_idx))
+
+%%
+CI_fwer(1-learning_scores(:,:,ncc_pred_learn > 1), 1-learning_masks(:,:,ncc_pred_learn > 1), 0.1)
+
+%%
+CI_fwer(-learning_scores_dist2(:,:,ncc_pred_learn > 1), 1-learning_masks(:,:,ncc_pred_learn > 1), 0.1)
+
+%%
+CI_fwer(-learning_scores_dist, 1-learning_masks, 0.1)
+
+%%
+CI_fwer(-learning_scores_dist, 1-learning_masks, 0.1)
+
+%% Have a look
+for id = find(ncc_pred_learn > 1)
+subplot(1,4,1)
+imagesc(learning_masks(:,:,id))
+subplot(1,4,2)
+imagesc(learning_scores(:,:,id) > 0.7)
+% imagesc(1-((1-learning_scores(:,:,id)) > 0.9393))
+% imagesc(learning_scores_dist(:,:,id) > -35.8)
+subplot(1,4,3)
+surf(learning_scores(:,:,id), 'EdgeAlpha', 0.1)
+subplot(1,4,4)
+surf(learning_scores_dist(:,:,id), 'EdgeAlpha', 0.1)
+fullscreen
+pause
+end

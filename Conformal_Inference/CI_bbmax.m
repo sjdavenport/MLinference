@@ -1,4 +1,4 @@
-function [ distmask ] = dtmask( mask, dtype )
+function [ out ] = CI_bbmax( predicted_masks, gt_masks )
 % NEWFUN
 %--------------------------------------------------------------------------
 % ARGUMENTS
@@ -9,10 +9,7 @@ function [ distmask ] = dtmask( mask, dtype )
 % 
 %--------------------------------------------------------------------------
 % EXAMPLES
-% MNImask = imgload('MNImask');
-% MNImask2D = MNImask(:,:,50);
-% distmask = dtmask( imfill(MNImask2D, 'holes') );
-% surf(distmask)
+% 
 %--------------------------------------------------------------------------
 % Copyright (C) - 2024 - Samuel Davenport
 %--------------------------------------------------------------------------
@@ -22,15 +19,14 @@ function [ distmask ] = dtmask( mask, dtype )
 
 %%  Add/check optional values
 %--------------------------------------------------------------------------
-if ~exist( 'dtype', 'var' )
+if ~exist( 'opt1', 'var' )
    % Default value
-   dtype = 'euclidean';
+   opt1 = 0;
 end
 
 %%  Main Function Loop
 %--------------------------------------------------------------------------
-distmask = bwdist(1-mask, dtype) - bwdist(mask, dtype) - mask;
-% distmask = bwdist(1-mask, 'cityblock') - bwdist(mask, 'cityblock') - mask;
+
 
 end
 
