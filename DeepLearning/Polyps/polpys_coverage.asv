@@ -249,51 +249,19 @@ ylabel('Ratio')
 title('Outer bounds')
 legend('Original scores', 'DT scores')
 
-%% Plot outer coverage curves
+%% Plot coverage curves
 plot([0.8,1], [0.8,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, 'HandleVisibility', 'off')
 hold on
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(1,1:21)/1000, '-o', 'LineWidth', 4, 'color', [0.5, 0.5, 1])
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(2,1:21)/1000, '-', 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(3,1:21)/1000, 'LineWidth', 4, 'color', 'black')
-std_curves = 1 - bernstd( 0:0.001:0.2, 1000, 0.95 );
-plot(1-(0:0.001:0.2), std_curves(1,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
-plot(1-(0:0.001:0.2), std_curves(2,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
-
+plot(1-alpha_levels(1:21), 1-coverage_curves_outer(1,1:21)/1000, 'LineWidth', 4, 'color', [0.5, 0.5, 1])
+plot(1-alpha_levels(1:1), 1-coverage_curves_outer(2,1:21)/1000, '--', 'LineWidth', 4, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:31), 1-coverage_curves_outer(3,1:21)/1000, 'LineWidth', 4, 'color', 'black')
 matniceplot
 BigFont(25)
-ylim([0.8,1])
-xlabel('1 - \alpha_2')
-ylabel('Coverage rate')
-title('Outer coverage')
-xticks(0.8:0.05:1)
-screenshape([1,1,500,500])
-legend('Original scores', 'DT scores', 'BB scores', 'Location', 'NW')
-axis square
-saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/validation/';
-saveim('outer_coverage.pdf', saveloc)
-
-%% Plot inner coverage curves
-plot([0.8,1], [0.8,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, 'HandleVisibility', 'off')
-hold on
-plot(1-alpha_levels(1:21), 1-coverage_curves_inner(1,1:21)/1000, '-o', 'LineWidth', 4, 'color', [0.5, 0.5, 1])
-plot(1-alpha_levels(1:21), 1-coverage_curves_inner(2,1:21)/1000, '-', 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:21), 1-coverage_curves_inner(3,1:21)/1000, 'LineWidth', 4, 'color', 'black')
-std_curves = 1 - bernstd( 0:0.001:0.2, 1000, 0.95 );
-plot(1-(0:0.001:0.2), std_curves(1,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
-plot(1-(0:0.001:0.2), std_curves(2,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
-
-matniceplot
-BigFont(25)
-ylim([0.8,1])
-xticks([0.8:0.05:1])
+% ylim([0,1])
 xlabel('1 - \alpha_1')
 ylabel('Coverage rate')
-title('Inner coverage')
-axis square
-screenshape([1,1,500,500])
-legend('Original scores', 'DT scores', 'BB scores', 'Location', 'NW')
-saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/validation/';
-saveim('inner_coverage.pdf', saveloc)
+title('Outer coverage')
+legend('Original scores', 'DT scores', 'Bounding box', 'Location', 'NW')
 
 %% Compute the oracle bounding box scores
 
