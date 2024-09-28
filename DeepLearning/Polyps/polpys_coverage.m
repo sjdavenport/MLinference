@@ -200,34 +200,39 @@ for J = 1:1000
     save('./covinfo.mat', 'coverage_curves_outer', 'coverage_curves_inner', 'average_bound_inner', 'average_bound_outer', 'median_ratio_inner', 'median_ratio_outer', 'median_ratio_inner_root', 'median_ratio_outer_root', 'average_ratio_inner', 'average_ratio_outer', 'J')
 end
 
-%%
-plot(1-alpha_levels(1:21), average_bound_outer(1,1:21)/123904/1000, 'LineWidth', 4, 'color', [0.5, 0.5, 1])
+%% Outer proportion
+plot(1-alpha_levels(1:31), average_bound_outer(1,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
-plot(1-alpha_levels(1:21), average_bound_outer(2,1:21)/123904/1000, 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:21), average_bound_outer(3,1:21)/123904/1000, 'LineWidth', 4, 'color', 'black')
-
+plot(1-alpha_levels(1:31), average_bound_outer(2,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:31), average_bound_outer(3,1:31)/123904/1000, 'LineWidth', 6, 'color', 'black')
 % plot([0.1, 0.1], [0, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
 ylim([0,1])
 xlabel('1-\alpha_2')
-ylabel('Ratio')
-title('Outer bounds')
+ylabel('Proportion')
+title('Outer proportion')
 legend('Original scores', 'DT scores', 'Location', 'NW')
+screenshape([1,1,700,500])
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
+saveim('outer_proportion.pdf', saveloc)
 
 %% Inner
-plot(1-alpha_levels(1:21), average_bound_inner(1,1:21)/123904/1000, 'LineWidth', 4, 'color', [0.5, 0.5, 1])
+plot(1-alpha_levels(1:31), average_bound_inner(1,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
-plot(1-alpha_levels(1:21), average_bound_inner(2,1:21)/123904/1000, 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:21), average_bound_inner(3,1:21)/123904/1000, 'LineWidth', 4, 'color', 'black')
-% plot([0.1, 0.1], [0, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
+plot(1-alpha_levels(1:31), average_bound_inner(2,1:31)/123904/1000, 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:31), average_bound_inner(3,1:31)/123904/1000, 'LineWidth', 6, 'color', 'black')
+% plot([getto, 1], [1, 1], '--'t , 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
-ylim([0,0.15])
+% ylim([0,1])
 xlabel('1-\alpha_1')
-ylabel('Ratio')
-title('Inner bounds')
+ylabel('Proportion')
+title('Inner proportion')
+screenshape([1,1,700,500])
 legend('Original scores', 'DT scores', 'Location', 'NW')
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
+saveim('inner_proportion.pdf', saveloc)
 
 %%
 plot(alpha_levels(1:20), total_bound_inner(1,1:20), 'LineWidth', 4, 'color', [0.5, 0.5, 1])
@@ -236,36 +241,65 @@ hold on
 matniceplot
 ylim([0,max(total_bound_inner(:))])
 
-%%
-plot(alpha_levels(:), sqrt(median_ratio_outer(1,:)/1000), 'LineWidth', 4, 'color', [0.5, 0.5, 1])
+%% Outer median ratio sqrt
+getto = 0.3;
+startat = 100*getto+1;
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_outer(1,1:startat)/1000), 'LineWidth', 6, 'color', [0.5, 0.5, 1])
 hold on
-plot(alpha_levels(:), sqrt(median_ratio_outer(2,:)/1000), 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot([0.1, 0.1], [0, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_outer(2,1:startat)/1000), 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot([1-getto, 1], [1, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
 matniceplot
 BigFont(25)
 % ylim([0,1])
-xlabel('\alpha_1')
+ylim([0,4])
+xlim([1-getto,1])
+xlabel('1 - \alpha_2')
 ylabel('Ratio')
-title('Outer bounds')
-legend('Original scores', 'DT scores')
+title('Outer Ratio')
+screenshape([1,1,700,500])
+legend('Original scores', 'DT scores', 'Location', 'NW')
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
+saveim('outer_ratio.pdf', saveloc)
+
+%% Inner median ratio sqrt
+getto = 0.7;
+startat = 100*getto+1;
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_inner(1,1:startat)/1000), 'LineWidth', 6, 'color', [0.5, 0.5, 1])
+hold on
+plot(1-alpha_levels(1:startat), sqrt(median_ratio_inner(2,1:startat)/1000), 'LineWidth', 6, 'color', [0.8,0.4,0.8])
+plot([getto, 1], [1, 1], '--', 'color', [0.5,0.5,0.5], 'LineWidth', 3)
+matniceplot
+BigFont(25)
+ylim([0,4])
+xlim([getto,1])
+xlabel('1 - \alpha_1')
+ylabel('Ratio')
+title('Inner Ratio')
+screenshape([1,1,700,500])
+legend('Original scores', 'DT scores', 'Location', 'NW')
+saveloc = '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/efficiency/';
+saveim('inner_ratio.pdf', saveloc)
 
 %% Plot outer coverage curves
-plot([0.8,1], [0.8,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, 'HandleVisibility', 'off')
+getto = 0.2;
+pointat = 100*getto+1;
+plot([1-getto,1], [1-getto,1], '--', 'color', [0.5, 0.5, 0.5], 'LineWidth', 3, 'HandleVisibility', 'off')
 hold on
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(1,1:21)/1000, '-o', 'LineWidth', 4, 'color', [0.5, 0.5, 1])
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(2,1:21)/1000, '-', 'LineWidth', 4, 'color', [0.8,0.4,0.8])
-plot(1-alpha_levels(1:21), 1-coverage_curves_outer(3,1:21)/1000, 'LineWidth', 4, 'color', 'black')
-std_curves = 1 - bernstd( 0:0.001:0.2, 1000, 0.95 );
-plot(1-(0:0.001:0.2), std_curves(1,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
-plot(1-(0:0.001:0.2), std_curves(2,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
+plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(1,1:pointat)/1000, '-o', 'LineWidth', 5, 'color', [0.5, 0.5, 1])
+plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(2,1:pointat)/1000, '-', 'LineWidth', 5, 'color', [0.8,0.4,0.8])
+plot(1-alpha_levels(1:pointat), 1-coverage_curves_outer(3,1:pointat)/1000, 'LineWidth', 5, 'color', 'black')
+std_curves = 1 - bernstd( 0:0.001:getto, 1000, 0.95 );
+plot(1-(0:0.001:getto), std_curves(1,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
+plot(1-(0:0.001:getto), std_curves(2,:), '--', 'LineWidth', 2, 'color', [0.3,0.3,0.3])
 
 matniceplot
 BigFont(25)
-ylim([0.8,1])
+ylim([1-getto,1])
+xlim([1-getto,1])
 xlabel('1 - \alpha_2')
 ylabel('Coverage rate')
 title('Outer coverage')
-xticks(0.8:0.05:1)
+% xticks(0.8:0.05:1)
 screenshape([1,1,500,500])
 legend('Original scores', 'DT scores', 'BB scores', 'Location', 'NW')
 axis square
