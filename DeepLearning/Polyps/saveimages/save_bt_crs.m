@@ -29,6 +29,9 @@ for I = 1:1798
     end
 end
 
+%%
+predicted_inner_boxes_temp = predicted_inner_boxes;
+
 %% Generate box transformed CRs
 scores_dist_bt_outer = zeros(size(scores));
 scores_dist_bt_inner = zeros(size(scores));
