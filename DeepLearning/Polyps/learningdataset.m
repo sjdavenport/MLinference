@@ -52,7 +52,7 @@ end
 
 %%
 learning_scores_dist = scores_dist(:,:,learning_idx);
-learning_scores_dist2 = scores_dist2(:,:,learning_idx);
+% learning_scores_dist2 = scores_dist2(:,:,learning_idx);
 
 [threshold_inner_dt, max_vals_inner] = CI_fwer(learning_scores_dist, learning_masks, 0.1);
 [threshold_outer_dt, max_vals_outer] = CI_fwer(-learning_scores_dist, 1-learning_masks, 0.1);
@@ -61,43 +61,79 @@ learning_scores_dist2 = scores_dist2(:,:,learning_idx);
 close all
 [ scoresinmask, scoresoutofmask] = mask_scores( learning_scores, learning_masks );
 h = histogram(scoresoutofmask, 'Normalization','probability')
-h.BinWidth = 0.01;
+h.BinWidth = 0.015;
 matnicehist('white')
 hold on
 h = histogram(scoresinmask, 'Normalization','probability');
-h.BinWidth = 0.01;
+h.BinWidth = 0.015;
 matnicehist('white')
 
-plot([threshold_inner, threshold_inner], [0,0.18], '--', 'LineWidth', 4, 'color', 'red')
-plot([1-threshold_outer, 1-threshold_outer], [0,0.18], '--', 'LineWidth', 4, 'color', 'blue')
-legend('Scores outside the masks', 'Scores inside the masks', 'Inner 90% threshold', 'Outer 90% threshold')
+plot([threshold_inner, threshold_inner], [0,0.25], '--', 'LineWidth', 6, 'color', 'red')
+plot([1-threshold_outer, 1-threshold_outer], [0,0.25], '--', 'LineWidth', 6, 'color', 'blue')
 xlabel('scores')
 ylabel('density')
 title('Original scores')
-BigFont(45)
+BigFont(50)
+ylim([0,0.25])
 surfscreen
-pause(1)
-snshot('testshot', 1, './')
+snshot('origscores', 1, '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/learning/hist_scores/')
 
 %% Learning distance transformed scores plot
 [ scoresinmask, scoresoutofmask] = mask_scores( learning_scores_dist, learning_masks );
 h = histogram(scoresoutofmask(scoresoutofmask ~= 0), 'Normalization','probability')
-h.BinWidth = 10;
+h.BinWidth = 8;
 matnicehist('white')
 hold on
 h = histogram(scoresinmask(scoresinmask ~= 0), 'Normalization','probability');
-h.BinWidth = 10;
+h.BinWidth = 8;
 matnicehist('white')
 
-plot([threshold_inner_dt, threshold_inner_dt], [0,0.25], '--', 'LineWidth', 4, 'color', 'red')
-plot([-threshold_outer_dt, -threshold_outer_dt], [0,0.25], '--', 'LineWidth', 4, 'color', 'blue')
+plot([threshold_inner_dt, threshold_inner_dt], [0,0.25], '--', 'LineWidth', 6, 'color', 'red')
+plot([-threshold_outer_dt, -threshold_outer_dt], [0,0.25], '--', 'LineWidth', 6, 'color', 'blue')
 % legend('Scores outside the masks', 'Scores inside the masks', 'Inner 90% threshold', 'Outer 90% threshold')
 xlabel('scores')
 ylabel('density')
 title('Distance transformed scores')
-BigFont(45)
+BigFont(50)
 surfscreen
+snshot('distscores', 1, '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/learning/hist_scores/')
+
 % print(gcf, '-dpdf', '/Users/sdavenport/Documents/Other/Figures/scoredist.pdf'); 
+
+%% BT scores
+%%
+learning_scores_dist_bt = scores_dist_bt(:,:,learning_idx);
+% learning_scores_dist2 = scores_dist2(:,:,learning_idx);
+
+[threshold_inner_bt, max_vals_inner] = CI_fwer(learning_scores_dist_bt, learning_masks, 0.1);
+[threshold_outer_bt, max_vals_outer] = CI_fwer(-learning_scores_dist_bt, 1-learning_masks, 0.1);
+
+
+%% Learning distance transformed scores plot
+[ scoresinmask, scoresoutofmask] = mask_scores( learning_scores_dist_bt, learning_masks );
+h = histogram(scoresoutofmask(scoresoutofmask ~= 0), 'Normalization','probability')
+h.BinWidth = 8;
+matnicehist('white')
+hold on
+h = histogram(scoresinmask(scoresinmask ~= 0), 'Normalization','probability');
+h.BinWidth = 8;
+matnicehist('white')
+
+plot([threshold_inner_bt, threshold_inner_bt], [0,0.25], '--', 'LineWidth', 6, 'color', 'red')
+plot([-threshold_outer_bt, -threshold_outer_bt], [0,0.25], '--', 'LineWidth', 6, 'color', 'blue')
+% legend('Scores outside the masks', 'Scores inside the masks', 'Inner 90% threshold', 'Outer 90% threshold')
+legend('Scores outside the masks', 'Scores inside the masks', 'Inner 90% threshold', 'Outer 90% threshold', 'Location', 'NW')
+xlabel('scores')
+ylabel('density')
+title('Bounding box scores')
+BigFont(50)
+surfscreen
+ylim([0,0.25])
+xlim([-400,120])
+snshot('btscores', 1, '/Users/sdavenport/Documents/MyPapers/0Papers/2024_crsegmentation/figures/learning/hist_scores/')
+
+% print(gcf, '-dpdf', '/Users/sdavenport/Documents/Other/Figures/scoredist.pdf'); 
+
 
 
 
@@ -156,7 +192,7 @@ histogram(ncc_pred(learning_idx))
 CI_fwer(1-learning_scores(:,:,ncc_pred_learn > 1), 1-learning_masks(:,:,ncc_pred_learn > 1), 0.1)
 
 %%
-CI_fwer(-learning_scores_dist2(:,:,ncc_pred_learn > 1), 1-learning_masks(:,:,ncc_pred_learn > 1), 0.1)
+CI_fwer(-learning_scores_dist2(:,:,ncc_pred_learn > 1), 1-learning_masks(:,:,ncc_pred_learn <= 1), 0.1)
 
 %%
 CI_fwer(-learning_scores_dist, 1-learning_masks, 0.1)
