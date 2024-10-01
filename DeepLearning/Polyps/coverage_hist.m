@@ -202,3 +202,30 @@ ylim([0,160])
 xlim([0.84,0.96])
 BigFont(40)
 saveim('val_hist_dt_outer.pdf', saveloc)
+
+%%
+h1 = histogram(1-set_of_inner_coverage_bt(1,:));
+h1.FaceColor = [0,0,0];
+matnicehist('white')
+% BigFont(30)
+title('BB inner')
+xlabel('1-\alpha_1')
+screenshape([1,1,1000,600], 'white')
+ylim([0,160])
+xlim([0.84,0.96])
+BigFont(40)
+saveim('val_hist_bt_inner.pdf', saveloc)
+
+%%
+h2 = histogram(1-set_of_outer_coverage_bt(1,:));
+h2.FaceColor = [0,0,0];
+% legend('DT')
+matnicehist('white')
+% BigFont(15)
+title('BB outer')
+xlabel('1-\alpha_2')
+screenshape([1,1,1000,600], 'white')
+ylim([0,160])
+xlim([0.84,0.96])
+BigFont(40)
+saveim('val_hist_bt_outer.pdf', saveloc)

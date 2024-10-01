@@ -112,4 +112,4 @@ for J = 1:1000
 end
 
 %%
-save('./covinfo_bt.mat', 'coverage_curves_outer_bt', 'coverage_curves_inner_bt', 'average_bound_inner_bt', 'average_bound_outer_bt', 'median_ratio_inner_bt', 'median_ratio_outer_bt', 'median_ratio_inner_root_bt', 'median_ratio_outer_root_bt', 'average_ratio_inner_bt', 'average_ratio_outer_bt', 'J')
+save('./covinfo_bt2.mat', 'coverage_curves_outer_bt', 'coverage_curves_inner_bt', 'average_bound_inner_bt', 'average_bound_outer_bt', 'median_ratio_inner_bt', 'median_ratio_outer_bt', 'median_ratio_inner_root_bt', 'median_ratio_outer_root_bt', 'average_ratio_inner_bt', 'average_ratio_outer_bt', 'set_of_outer_coverage_bt', 'set_of_inner_coverage_bt', 'J')
