@@ -25,11 +25,13 @@ val_scores = scores(:,:,val_idx);
 val_gt_masks = gt_masks(:,:,val_idx);
 
 %%
+tic
 % Generate inner sets
 [threshold_inner, max_vals] = CI_fwer(cal_scores, cal_gt_masks, 0.1);
 
 % Generate outer sets
 [threshold_outer, max_vals_dist_outer] = CI_fwer(-cal_scores_dist, 1-cal_gt_masks, 0.1);
+toc
 
 %%
 
