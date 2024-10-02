@@ -1,3 +1,5 @@
+loadpolypsdata
+
 %% Learning Inner/Outer sets
 rng(2, 'twister')
 learning_idx = randsample(1798, 298);
@@ -17,8 +19,8 @@ cal_ex_indices = intersect(ex_indices, cal_idx_ex);
 
 cal_scores = scores(:,:,cal_idx);
 cal_scores_dist = scores_dist(:,:,cal_idx);
-cal_scores_bt_inner = scores_dist_bt_inner(:,:,cal_idx);
-cal_scores_bt_outer = scores_dist_bt_outer(:,:,cal_idx);
+% cal_scores_bt_inner = scores_dist_bt_inner(:,:,cal_idx);
+% cal_scores_bt_outer = scores_dist_bt_outer(:,:,cal_idx);
 
 cal_gt_masks = gt_masks(:,:,cal_idx);
 val_scores = scores(:,:,val_idx);
@@ -185,9 +187,9 @@ path4ims = '/Users/sdavenport/Documents/Data/SegmentationData/polyps/examples/';
 
 im_size = [530,600];
 
-for I = 1:135
+for ex = 50
     I
-    ex = val_ex_indices(I);
+    % ex = val_ex_indices(I);
     score_im_inner = scores_dist_bt_inner(:,:,ex+1);
     score_im_outer = scores_dist_bt_outer(:,:,ex+1);
 
